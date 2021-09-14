@@ -18,6 +18,7 @@ public class CharacterMoveController : MonoBehaviour
     [Header("Scoring")]
     public ScoreController score;
     public float scoringRatio;
+    public int scoreItem;
     private float lastPositionX;
 
     [Header("Game Over")]
@@ -27,12 +28,25 @@ public class CharacterMoveController : MonoBehaviour
     [Header("Camera")]
     public CameraMoveController gameCamera;
 
+    public TerrainGeneratorController terrain;
+
     private bool isJumping;
     private bool isOnGround;
 
     private Rigidbody2D rig;
     private Animator anim;
     private CharacterSoundController sound;
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Item"))
+        {
+            Debug.Log("Player catch item!");
+            score.increaseCurrentScore(scoreItem);
+            terrain.spawnedItem.Remove(collision.gameObject);
+            Destroy(collision.gameObject);
+        }
+    }
 
     private void Start()
     {

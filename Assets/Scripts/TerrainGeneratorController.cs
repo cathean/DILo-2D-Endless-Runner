@@ -16,7 +16,11 @@ public class TerrainGeneratorController : MonoBehaviour
     [Header("Force Early Template")]
     public List<TerrainTemplateController> earlyTerrainTemplates;
 
+    [Header("Item")]
+    public GameObject itemPrefab;
+
     private List<GameObject> spawnedTerrain;
+    public List<GameObject> spawnedItem;
     private float lastGeneratedPositionX;
     private float lastRemovedPositionX;
     private const float debugLineHeight = 10.0f;
@@ -24,6 +28,7 @@ public class TerrainGeneratorController : MonoBehaviour
     private void Start()
     {
         spawnedTerrain = new List<GameObject>();
+        spawnedItem = new List<GameObject>();
         lastGeneratedPositionX = GetHorizontalPositionStart();
         lastRemovedPositionX = lastGeneratedPositionX - terrainTemplateWidth;
 
@@ -47,11 +52,20 @@ public class TerrainGeneratorController : MonoBehaviour
         spawnedTerrain.Add(newTerrain);
     }
 
+    private void GenerateItem(float posX)
+    {
+        GameObject newItem = Instantiate(itemPrefab, transform);
+        newItem.transform.position = new Vector2(posX, Random.Range(1, 3));
+        spawnedItem.Add(newItem);
+
+    }
+
     private void Update()
     {
         while(lastGeneratedPositionX < GetHorizontalPositionEnd())
         {
             GenerateTerrain(lastGeneratedPositionX);
+            GenerateItem(lastGeneratedPositionX);
             lastGeneratedPositionX += terrainTemplateWidth;
         }
 
@@ -59,6 +73,7 @@ public class TerrainGeneratorController : MonoBehaviour
         {
             lastRemovedPositionX += terrainTemplateWidth;
             RemoveTerrain(lastRemovedPositionX);
+            RemoveItem(lastRemovedPositionX);
         }
     }
 
@@ -81,6 +96,28 @@ public class TerrainGeneratorController : MonoBehaviour
         {
             spawnedTerrain.Remove(terrainToRemove);
             Destroy(terrainToRemove);
+        }
+    }
+
+    private void RemoveItem(float posX)
+    {
+        GameObject itemToRemove = null;
+
+        // Find item at posX
+        foreach(GameObject item in spawnedItem)
+        {
+            if(item.transform.position.x == posX)
+            {
+                itemToRemove = item;
+                break;
+            }
+        }
+
+        // After found
+        if(itemToRemove != null)
+        {
+            spawnedItem.Remove(itemToRemove);
+            Destroy(itemToRemove);
         }
     }
 
